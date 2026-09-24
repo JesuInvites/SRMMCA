@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Section D — Attendance Register</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,500;0,600;0,700;1,500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F7F3EA;
+    --paper-dark:#EFE8D8;
+    --ink:#1E2A3A;
+    --ink-soft:#4B5768;
+    --rule:#D8CDB0;
+    --stamp:#8C3A34;
+    --stamp-soft:#F3E2DE;
+    --sage:#4C6B4F;
+    --sage-soft:#E4EBDE;
+    --gold:#A9781E;
+    --card:#FFFDF8;
+    --shadow: 0 1px 0 rgba(30,42,58,0.06);
+    box-sizing:border-box;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --paper:#1B1A16; --paper-dark:#242220; --ink:#EFE9DC; --ink-soft:#B8AF9C;
+      --rule:#3A3630; --stamp:#D98077; --stamp-soft:#3A2422; --sage:#8FB893; --sage-soft:#243024;
+      --gold:#D8B366; --card:#232019;
+    }
+  }
+  :root[data-theme="dark"]{
+    --paper:#1B1A16; --paper-dark:#242220; --ink:#EFE9DC; --ink-soft:#B8AF9C;
+    --rule:#3A3630; --stamp:#D98077; --stamp-soft:#3A2422; --sage:#8FB893; --sage-soft:#243024;
+    --gold:#D8B366; --card:#232019;
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0; background:var(--paper); color:var(--ink);
+    font-family:'IBM Plex Sans', Arial, sans-serif;
+    padding-top:env(safe-area-inset-top,0px);
+    padding-bottom:env(safe-area-inset-bottom,0px);
+  }
+  a{color:inherit;}
+
+  header.masthead{
+    padding:28px 24px 18px; text-align:center;
+    border-bottom:2px solid var(--ink);
+    background:var(--paper);
+  }
+  header.masthead h1{
+    font-family:'Lora', serif; font-weight:700; font-style:italic;
+    font-size:clamp(26px,4vw,38px); margin:0 0 4px; letter-spacing:0.2px;
+  }
+  header.masthead .meta{
+    font-size:13px; color:var(--ink-soft); font-family:'IBM Plex Mono', monospace;
+  }
+  header.masthead .meta span{ margin:0 10px; }
+
+  nav.tabs{
+    display:flex; overflow-x:auto; gap:2px; padding:0 16px;
+    background:var(--paper-dark); border-bottom:1px solid var(--rule);
+    scrollbar-width:thin;
+  }
+  nav.tabs button{
+    flex:0 0 auto; font-family:'IBM Plex Sans',sans-serif; font-weight:600; font-size:13.5px;
+    background:transparent; color:var(--ink-soft); border:none; border-top:3px solid transparent;
+    padding:14px 16px 11px; cursor:pointer; white-space:nowrap; letter-spacing:0.1px;
+    transition: color .15s, border-color .15s, background .15s;
+  }
+  nav.tabs button .code{ font-family:'IBM Plex Mono',monospace; font-size:10.5px; display:block; color:var(--ink-soft); opacity:.7; margin-bottom:2px;}
+  nav.tabs button:hover{ color:var(--ink); background:rgba(140,58,52,0.06); }
+  nav.tabs button.active{
+    color:var(--stamp); border-top-color:var(--stamp); background:var(--card);
+  }
+  nav.tabs button.active .code{ color:var(--stamp); opacity:.85;}
+
+  main{ max-width:920px; margin:0 auto; padding:22px 18px 60px; }
+
+  .panel-head{
+    display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between;
+    gap:14px; margin-bottom:16px;
+  }
+  .panel-head h2{
+    font-family:'Lora',serif; font-size:22px; margin:0; font-weight:600;
+  }
+  .panel-head .roster-note{ font-size:12.5px; color:var(--ink-soft); margin-top:3px; }
+
+  .controls{
+    display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+  }
+  .controls label{ font-size:12.5px; color:var(--ink-soft); font-weight:600; }
+  input[type="date"]{
+    font-family:'IBM Plex Mono',monospace; font-size:13px; padding:7px 10px;
+    border:1px solid var(--rule); border-radius:3px; background:var(--card); color:var(--ink);
+  }
+  .btn{
+    font-family:'IBM Plex Sans',sans-serif; font-weight:600; font-size:13px;
+    padding:9px 16px; border-radius:3px; border:1px solid var(--ink); background:var(--ink); color:var(--paper);
+    cursor:pointer; transition: transform .08s ease, opacity .15s;
+  }
+  .btn:hover{ opacity:.88; }
+  .btn:active{ transform:translateY(1px); }
+  .btn.secondary{ background:transparent; color:var(--ink); border-color:var(--rule); }
+  .btn.secondary:hover{ border-color:var(--ink); background:rgba(30,42,58,0.04); }
+  .btn.stamp{ background:var(--stamp); border-color:var(--stamp); color:#fff; }
+  .btn.whatsapp{ background:#25D366; border-color:#25D366; color:#fff; display:inline-flex; align-items:center; gap:6px; }
+  .btn.whatsapp:hover{ background:#1EBE5A; border-color:#1EBE5A; }
+  .btn:disabled{ opacity:.4; cursor:not-allowed; }
+
+  .summary-bar{
+    display:flex; gap:10px; margin-bottom:14px; flex-wrap:wrap;
+  }
+  .summary-bar .chip{
+    font-family:'IBM Plex Mono',monospace; font-size:12px; padding:6px 12px;
+    border-radius:20px; background:var(--paper-dark); color:var(--ink-soft); border:1px solid var(--rule);
+  }
+  .summary-bar .chip.present{ background:var(--sage-soft); color:var(--sage); border-color:transparent; font-weight:600;}
+  .summary-bar .chip.absent{ background:var(--stamp-soft); color:var(--stamp); border-color:transparent; font-weight:600;}
+
+  .roster{
+    background:var(--card); border:1px solid var(--rule); border-radius:6px;
+    overflow:hidden; box-shadow:var(--shadow);
+  }
+  .roster .row{
+    display:grid; grid-template-columns:36px 1fr 150px 110px;
+    align-items:center; padding:11px 16px; border-bottom:1px solid var(--rule);
+    gap:10px;
+  }
+  .roster .row:last-child{ border-bottom:none; }
+  .roster .row.head{
+    background:var(--paper-dark); font-size:11px; text-transform:uppercase; letter-spacing:0.6px;
+    color:var(--ink-soft); font-weight:700; padding-top:9px; padding-bottom:9px;
+  }
+  .roster .row .sl{ font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--ink-soft); }
+  .roster .row .name{ font-weight:600; font-size:14.5px; }
+  .roster .row .reg{ font-family:'IBM Plex Mono',monospace; font-size:11.5px; color:var(--ink-soft); }
+  .sports-badge{ display:inline-block; margin-left:7px; padding:2px 6px; border-radius:10px; background:var(--gold); color:#fff; font-family:'IBM Plex Mono',monospace; font-size:9px; font-weight:700; vertical-align:middle; }
+  .roster .row.absent-row{ background: color-mix(in srgb, var(--stamp-soft) 45%, transparent); }
+
+  .toggle{
+    display:flex; border:1px solid var(--rule); border-radius:20px; overflow:hidden;
+    font-family:'IBM Plex Mono',monospace; font-size:11.5px; font-weight:600; width:fit-content;
+  }
+  .toggle button{
+    border:none; background:transparent; padding:6px 14px; cursor:pointer; color:var(--ink-soft);
+  }
+  .toggle button.present.on{ background:var(--sage); color:#fff; }
+  .toggle button.absent.on{ background:var(--stamp); color:#fff; }
+
+  .empty{
+    padding:40px 20px; text-align:center; color:var(--ink-soft); font-size:14px;
+  }
+
+  .history{
+    margin-top:34px; padding-top:22px; border-top:1px dashed var(--rule);
+  }
+  .history h3{
+    font-family:'Lora',serif; font-size:17px; margin:0 0 12px; font-weight:600;
+  }
+  .history-list{ display:flex; flex-direction:column; gap:6px; }
+  .history-row{
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    background:var(--card); border:1px solid var(--rule); border-radius:5px;
+    padding:9px 14px; font-size:12.5px;
+  }
+  .history-row .d{ font-family:'IBM Plex Mono',monospace; font-weight:600; }
+  .history-row .ts{ color:var(--ink-soft); font-size:11.5px; }
+  .history-row .counts{ display:flex; gap:8px; }
+  .history-row .counts span{ font-family:'IBM Plex Mono',monospace; }
+  .history-row .load{
+    background:none; border:1px solid var(--rule); border-radius:14px; padding:4px 10px;
+    font-size:11px; cursor:pointer; color:var(--ink); font-family:'IBM Plex Sans',sans-serif; font-weight:600;
+  }
+  .history-row .load:hover{ border-color:var(--stamp); color:var(--stamp); }
+  .history-empty{ font-size:12.5px; color:var(--ink-soft); font-style:italic; }
+
+  footer.note{
+    max-width:920px; margin:0 auto; padding:0 18px 40px; font-size:11.5px; color:var(--ink-soft); line-height:1.5;
+  }
+
+  ::-webkit-scrollbar{ height:6px; }
+  ::-webkit-scrollbar-thumb{ background:var(--rule); border-radius:3px; }
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <h1>Section D — Attendance Register</h1>
+  <div class="meta"><span id="liveClock">—</span><span>·</span><span>65 students</span><span>·</span><span>10 subjects</span></div>
+</header>
+
+<nav class="tabs" id="tabs"></nav>
+
+<main>
+  <div class="panel-head">
+    <div>
+      <h2 id="subjectTitle">—</h2>
+      <div class="roster-note" id="rosterNote"></div>
+    </div>
+    <div class="controls">
+      <label for="datePick">Date</label>
+      <input type="date" id="datePick">
+      <button class="btn secondary" id="allPresentBtn">Mark all present</button>
+      <button class="btn secondary" id="clearBtn">Clear</button>
+      <button class="btn stamp" id="saveBtn">Save attendance</button>
+      <button class="btn whatsapp" id="shareBtn" title="Share this subject's attendance for the selected date on WhatsApp">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2 22l5.27-1.38a9.9 9.9 0 0 0 4.77 1.21h.01c5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0 0 12.04 2m0 1.67c2.24 0 4.35.87 5.94 2.46a8.23 8.23 0 0 1 2.42 5.78c0 4.55-3.7 8.24-8.25 8.24a8.2 8.2 0 0 1-4.19-1.15l-.3-.18-3.13.82.83-3.05-.2-.32a8.18 8.18 0 0 1-1.26-4.37c0-4.55 3.7-8.23 8.24-8.23M8.53 6.85c-.16 0-.43.06-.66.31-.22.25-.86.84-.86 2.05s.88 2.38 1 2.55c.13.16 1.7 2.6 4.14 3.64.58.25 1.03.4 1.38.5.58.19 1.11.16 1.53.1.47-.07 1.43-.58 1.63-1.15.2-.56.2-1.04.14-1.14-.06-.1-.22-.16-.47-.28-.25-.13-1.44-.71-1.66-.79-.22-.08-.39-.13-.55.13-.16.25-.63.79-.78.95-.14.16-.28.18-.53.06-.25-.13-1.05-.39-2-1.23-.74-.66-1.24-1.48-1.39-1.73-.14-.25-.02-.38.11-.51.11-.11.25-.28.38-.43.13-.14.17-.25.25-.41.08-.16.04-.31-.02-.44-.06-.13-.55-1.36-.77-1.85-.2-.48-.4-.42-.55-.42h-.47Z"/></svg>
+        Share on WhatsApp
+      </button>
+    </div>
+  </div>
+
+  <div class="summary-bar" id="summaryBar"></div>
+
+  <div class="roster" id="rosterBox"></div>
+
+  <div class="history" id="historyBox">
+    <h3>Previous entries for this subject</h3>
+    <div class="history-list" id="historyList"></div>
+  </div>
+</main>
+
+<footer class="note">
+  Attendance is saved locally in this browser (localStorage) — private to this device, not sent anywhere. Cookies
+  were avoided on purpose: a school-term's worth of daily records for 65 students across 10 subjects would exceed a
+  cookie's 4&nbsp;KB limit and get sent to a server on every request. Export a subject's full record any time with
+  <strong>Save attendance</strong> history below, or use the CSV export next to it if your browser offers file saving.
+  Elective placement (Software Engineering vs. Advanced Web Technology; Cyber Security vs. Distributed Computing) was
+  read from the course-registration sheet — double check row 45 (Aryan Singh), whose sheet was cut off, in the
+  <code>STUDENTS</code> list inside this page's source if anything looks off.
+</footer>
+
+<script>
+/* ---------------- Roster data ---------------- */
+// elD: 'D01J' (Software Engineering & Testing) or 'D02J' (Advanced Web Technology)
+// elG: 'G01T' (Cyber Security), 'G03T' (Distributed Computing), or null (takes Soft Computing, not tracked here)
+const STUDENTS = [
+  {reg:"RA2682241010181", name:"Karthiga M",                    elD:"D02J", elG:"G01T"},
+  {reg:"RA2682241010182", name:"Jeswanth P",                     elD:"D01J", elG:"G03T"},
+  {reg:"RA2682241010183", name:"Samarth Dwivedi",                elD:"D01J", elG:"G02T"},
+  {reg:"RA2682241010184", name:"Ansel Jacob Aju",                elD:"D01J", elG:"G02T"},
+  {reg:"RA2682241010185", name:"Nandika K S",                    elD:"D01J", elG:"G01T"},
+  {reg:"RA2682241010186", name:"Raswanth K M",                   elD:"D02J", elG:"G03T"},
+  {reg:"RA2682241010187", name:"Jagadeesh S",                    elD:"D01J", elG:"G02T"},
+  {reg:"RA2682241010188", name:"Ranjan K R",                     elD:"D01J", elG:"G02T"},
+  {reg:"RA2682241010189", name:"Leelavathi G",                   elD:"D02J", elG:"G02T"},
+  {reg:"RA2682241010190", name:"Parthasarathy V",                elD:"D02J", elG:"G01T"},
+  {reg:"RA2682241010191", name:"Ranjani R",                      elD:"D01J", elG:"G01T"},
+  {reg:"RA2682241010192", name:"Hemalatha E",                    elD:"D01J", elG:"G02T"},
+  {reg:"RA2682241010193", name:"Prince Raj J",                   elD:"D01J", elG:"G03T"},
+  {reg:"RA2682241010194", name:"Jose Kurian Maijo",               elD:"D01J", elG:"G02T"},
+  {reg:"RA2682241010195", name:"Priyanga P",                     elD:"D01J", elG:"G01T"},
+  {reg:"RA2682241010196", name:"Thivagar K",                     elD:"D02J", elG:"G01T"},
+  {reg:"RA2682241010197", name:"Felix Subash",                   elD:"D01J", elG:"G01T"},
+  {reg:"RA2682241010198", name:"Pragati Tiwari",                 elD:"D01J", elG:"G02T"},
+  {reg:"RA2682241010199", name:"Athiya S",                       elD:"D01J", elG:"G01T"},
+  {reg:"RA2682241010200", name:"S Joffin Anburaj",                elD:"D01J", elG:"G03T"},
+  {reg:"RA2682241010202", name:"Anshu Kumar Singh",               elD:"D01J", elG:"G02T"},
+  {reg:"RA2682241010203", name:"Monika P",                       elD:"D01J", elG:"G02T"},
+  {reg:"RA2682241010204", name:"Jercin S",                       elD:"D02J", elG:"G02T"},
+  {reg:"RA2682241010205", name:"Harisankar A",                   elD:"D01J", elG:"G03T"},
+  {reg:"RA2682241010206", name:"Mohamed Fowze",                  elD:"D01J", elG:"G03T"},
+  {reg:"RA2682241010207", name:"Raihan R",                       elD:"D02J", elG:"G03T"},
+  {reg:"RA2682241010208", name:"Abdul Kalam",                    elD:"D01J", elG:"G02T"},
+  {reg:"RA2682241010209", name:"Shameer Basha M",                elD:"D01J", elG:"G02T"},
+  {reg:"RA2682241010210", name:"Habishek K",                     elD:"D01J", elG:"G01T"},
+  {reg:"RA2682241010211", name:"Harsh Srivastava",               elD:"D01J", elG:"G01T"},
+  {reg:"RA2682241010212", name:"Geolin G",                       elD:"D01J", elG:"G01T"},
+  {reg:"RA2682241010213", name:"Manisha Jaty",                   elD:"D01J", elG:"G02T"},
+  {reg:"RA2682241010214", name:"Aryan Sharma",                   elD:"D01J", elG:"G01T"},
+  {reg:"RA2682241010215", name:"Sachin K S",                     elD:"D02J", elG:"G02T"},
+  {reg:"RA2682241010216", name:"M Ahmed Thariq",                 elD:"D01J", elG:"G03T"},
+  {reg:"RA2682241010217", name:"Dineshkumar B",                  elD:"D02J", elG:"G01T"},
+  {reg:"RA2682241010218", name:"Shivam Prajapati",               elD:"D02J", elG:"G01T"},
+  {reg:"RA2682241010219", name:"Shubham Prajapati",              elD:"D02J", elG:"G01T"},
+  {reg:"RA2682241010220", name:"Vivek Solanki",                  elD:"D02J", elG:"G01T"},
+  {reg:"RA2682241010221", name:"Devangam Vatti Sree Manvitha",   elD:"D01J", elG:"G02T"},
+  {reg:"RA2682241010222", name:"Asle Figo Leon S",                elD:"D01J", elG:"G02T"},
+  {reg:"RA2682241010223", name:"Athulkrishna Ravi",               elD:"D01J", elG:"G02T"},
+  {reg:"RA2682241010224", name:"Tanupriya Singh",                 elD:"D01J", elG:"G02T"},
+  {reg:"RA2682241010225", name:"Santhosh S",                      elD:"D01J", elG:"G02T"},
+  {reg:"RA2682241010228", name:"Aryan Singh",                     elD:"D01J", elG:"G01T"}, // sheet cut off — verify
+  {reg:"RA2682241010229", name:"Rishika Panda",                 elD:"D01J", elG:"G03T"},
+  {reg:"RA2682241010230", name:"Raksha Rawal",                 elD:"D02J", elG:"G02T"},
+  {reg:"RA2682241010231", name:"Sumit Verma",                  elD:"D01J", elG:"G03T"},
+  {reg:"RA2682241010232", name:"Monika G",                     elD:"D01J", elG:"G02T"},
+  {reg:"RA2682241010233", name:"Prajapat Rakesh",              elD:"D01J", elG:"G02T"},
+  {reg:"RA2682241010234", name:"Murali Dharan B",              elD:"D01J", elG:"G02T"},
+  {reg:"RA2682241010235", name:"Praveen Kumar U",              elD:"D01J", elG:"G03T"},
+  {reg:"RA2682241010236", name:"Adarsh Sisodia",               elD:"D01J", elG:"G02T"},
+  {reg:"RA2682241010237", name:"Hariprasath D",                elD:"D01J", elG:"G03T", sport:"Hockey"},
+  {reg:"RA2682241010238", name:"Mohana Harish P",              elD:"D01J", elG:"G03T", sport:"Hockey"},
+  {reg:"RA2682241010239", name:"T Shanmuga Priya",             elD:"D01J", elG:"G03T", sport:"Hockey"},
+  {reg:"RA2682241010240", name:"Chakkaravarthy B",             elD:"D01J", elG:"G03T"},
+  {reg:"RA2682241010241", name:"Kabilan R",                    elD:"D01J", elG:"G02T"},
+  {reg:"RA2682241010242", name:"Hemant Pachauri",              elD:"D01J", elG:"G03T"},
+  {reg:"RA2682241010243", name:"Lathikasri",                   elD:"D01J", elG:"G03T", sport:"Hockey"},
+  {reg:"RA2682241010244", name:"Bharathiselvan G",             elD:"D01J", elG:"G03T"},
+  {reg:"RA2682241010245", name:"Pradeep Kumar",                elD:"D01J", elG:"G03T"},
+  {reg:"RA2682241010246", name:"Josetin T",                    elD:"D01J", elG:"G03T"},
+  {reg:"RA2682241010247", name:"Gopal Prasad",                 elD:"D01J", elG:"G03T"},
+  {reg:"RA2682241010248", name:"Dinesh Kumar A",               elD:"D01J", elG:"G03T"}
+];
+
+const SUBJECTS = [
+  {code:"PCA25C01J", name:"Object Oriented Programming using Java", roster:"core"},
+  {code:"PCA25C02T", name:"Data Structures and Algorithms",          roster:"core"},
+  {code:"PCA25C03J", name:"Database Technology",                     roster:"core"},
+  {code:"PCA25D01J", name:"Software Engineering and Testing",        roster:"D01J"},
+  {code:"PCA25D02J", name:"Advanced Web Technology",                 roster:"D02J"},
+  {code:"PCA25G01T", name:"Cyber Security",                          roster:"G01T"},
+  {code:"PCA25G02T", name:"Soft Computing",                           roster:"G02T"},
+  {code:"PCA25G03T", name:"Distributed Computing",                   roster:"G03T"},
+  {code:"PCA25S01J", name:"Data Mining Techniques",                  roster:"core"},
+  {code:"PCD25AE1T", name:"Comprehensive Skills in Quantitative and Logical Reasoning", roster:"core"},
+];
+
+function getRoster(subj){
+  if(subj.roster === "core") return STUDENTS;
+  return STUDENTS.filter(s => s.elD === subj.roster || s.elG === subj.roster);
+}
+
+/* ---------------- State ---------------- */
+let activeSubjectIdx = 0;
+let currentRecords = {}; // reg -> "P" | "A"
+
+function todayISO(){
+  const d = new Date();
+  const off = d.getTimezoneOffset();
+  return new Date(d.getTime() - off*60000).toISOString().slice(0,10);
+}
+
+function storageKey(code, date){ return `attn_${code}_${date}`; }
+function datesKey(code){ return `attn_dates_${code}`; }
+
+function loadDatesList(code){
+  try{
+    const raw = localStorage.getItem(datesKey(code));
+    return raw ? JSON.parse(raw) : [];
+  }catch(e){ return []; }
+}
+function saveDatesList(code, arr){
+  localStorage.setItem(datesKey(code), JSON.stringify(arr));
+}
+
+function loadRecord(code, date){
+  try{
+    const raw = localStorage.getItem(storageKey(code, date));
+    return raw ? JSON.parse(raw) : null;
+  }catch(e){ return null; }
+}
+
+/* ---------------- Rendering ---------------- */
+function renderTabs(){
+  const nav = document.getElementById('tabs');
+  nav.innerHTML = '';
+  SUBJECTS.forEach((s, i) => {
+    const b = document.createElement('button');
+    b.className = i === activeSubjectIdx ? 'active' : '';
+    b.innerHTML = `<span class="code">${s.code}</span>${shortName(s.name)}`;
+    b.onclick = () => { activeSubjectIdx = i; onSubjectChange(); };
+    nav.appendChild(b);
+  });
+}
+
+function shortName(name){
+  const map = {
+    "Object Oriented Programming using Java":"OOP (Java)",
+    "Data Structures and Algorithms":"DSA",
+    "Database Technology":"Database Tech",
+    "Software Engineering and Testing":"SE & Testing",
+    "Advanced Web Technology":"Adv. Web Tech",
+    "Cyber Security":"Cyber Security",
+    "Soft Computing":"Soft Computing",
+    "Distributed Computing":"Distributed Computing",
+    "Data Mining Techniques":"Data Mining",
+    "Comprehensive Skills in Quantitative and Logical Reasoning":"Quant. & Logical Reasoning",
+  };
+  return map[name] || name;
+}
+
+function onSubjectChange(){
+  renderTabs();
+  const subj = SUBJECTS[activeSubjectIdx];
+  document.getElementById('subjectTitle').textContent = subj.name;
+  const roster = getRoster(subj);
+  const note = subj.roster === 'core'
+    ? `Core course · all ${roster.length} students of Section D`
+    : `Elective (${subj.code}) · ${roster.length} students enrolled`;
+  document.getElementById('rosterNote').textContent = note;
+  loadForDate(document.getElementById('datePick').value || todayISO());
+  renderHistory();
+}
+
+function loadForDate(date){
+  const subj = SUBJECTS[activeSubjectIdx];
+  const roster = getRoster(subj);
+  const existing = loadRecord(subj.code, date);
+  currentRecords = {};
+  roster.forEach(s => {
+    currentRecords[s.reg] = existing && existing.records[s.reg] ? existing.records[s.reg] : "A";
+  });
+  renderRoster();
+}
+
+function renderRoster(){
+  const subj = SUBJECTS[activeSubjectIdx];
+  // Serial numbers always follow the master Section D order (1–65).
+  const serialByReg = {};
+  STUDENTS.forEach((student, index) => {
+    serialByReg[student.reg] = index + 1;
+  });
+  const roster = getRoster(subj);
+  const box = document.getElementById('rosterBox');
+  box.innerHTML = '';
+
+  if(roster.length === 0){
+    box.innerHTML = `<div class="empty">No students are enrolled in this subject.</div>`;
+    updateSummary(roster);
+    return;
+  }
+
+  const head = document.createElement('div');
+  head.className = 'row head';
+  head.innerHTML = `<div>Sl</div><div>Name</div><div>Reg. No.</div><div>Status</div>`;
+  box.appendChild(head);
+
+  roster.forEach((s, idx) => {
+    const row = document.createElement('div');
+    const status = currentRecords[s.reg];
+    row.className = 'row' + (status === 'A' ? ' absent-row' : '');
+    row.innerHTML = `
+      <div class="sl">${serialByReg[s.reg]}</div>
+      <div class="name">${s.name}${s.sport ? `<span class="sports-badge">SPORTS · ${s.sport}</span>` : ''}</div>
+      <div class="reg">${s.reg}</div>
+      <div class="toggle" data-reg="${s.reg}">
+        <button type="button" class="present ${status==='P'?'on':''}" data-val="P">Present</button>
+        <button type="button" class="absent ${status==='A'?'on':''}" data-val="A">Absent</button>
+      </div>
+    `;
+    box.appendChild(row);
+  });
+
+  box.querySelectorAll('.toggle').forEach(t => {
+    const reg = t.getAttribute('data-reg');
+    t.querySelectorAll('button').forEach(btn => {
+      btn.onclick = () => {
+        currentRecords[reg] = btn.getAttribute('data-val');
+        renderRoster();
+        updateSummary(roster);
+      };
+    });
+  });
+
+  updateSummary(roster);
+}
+
+function updateSummary(roster){
+  const total = roster.length;
+  const present = roster.filter(s => currentRecords[s.reg] === 'P').length;
+  const absent = total - present;
+  const bar = document.getElementById('summaryBar');
+  bar.innerHTML = `
+    <span class="chip">${total} enrolled</span>
+    <span class="chip present">${present} present</span>
+    <span class="chip absent">${absent} absent</span>
+  `;
+}
+
+function shareOnWhatsApp(){
+  const subj = SUBJECTS[activeSubjectIdx];
+  const roster = getRoster(subj);
+  const date = document.getElementById('datePick').value || todayISO();
+
+  const serialByReg = {};
+  STUDENTS.forEach((student, index) => { serialByReg[student.reg] = index + 1; });
+
+  const present = roster.filter(s => currentRecords[s.reg] === 'P');
+  const absent = roster.filter(s => currentRecords[s.reg] !== 'P');
+
+  let text = `*${subj.name}* (${subj.code})\nAttendance — ${date}\n\n`;
+  text += `Present: ${present.length} / ${roster.length}\n\n`;
+  if(absent.length){
+    text += `*Absentees:*\n`;
+    absent
+      .slice()
+      .sort((a,b) => serialByReg[a.reg]-serialByReg[b.reg])
+      .forEach(s => { text += `${serialByReg[s.reg]}. ${s.name} (${s.reg})\n`; });
+  } else {
+    text += `All students present.`;
+  }
+
+  const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
+  window.open(url, '_blank');
+}
+document.getElementById('shareBtn').addEventListener('click', shareOnWhatsApp);
+
+function renderHistory(){
+  const subj = SUBJECTS[activeSubjectIdx];
+  const dates = loadDatesList(subj.code).slice().sort().reverse();
+  const list = document.getElementById('historyList');
+  list.innerHTML = '';
+  if(dates.length === 0){
+    list.innerHTML = `<div class="history-empty">No attendance saved yet for this subject.</div>`;
+    return;
+  }
+  dates.forEach(date => {
+    const rec = loadRecord(subj.code, date);
+    if(!rec) return;
+    const values = Object.values(rec.records);
+    const present = values.filter(v => v === 'P').length;
+    const absent = values.length - present;
+    const row = document.createElement('div');
+    row.className = 'history-row';
+    const savedTime = rec.savedAt ? new Date(rec.savedAt).toLocaleString() : '';
+    row.innerHTML = `
+      <div><span class="d">${date}</span><br><span class="ts">saved ${savedTime}</span></div>
+      <div class="counts"><span>P:${present}</span><span>A:${absent}</span></div>
+      <button class="load">Open</button>
+    `;
+    row.querySelector('.load').onclick = () => {
+      document.getElementById('datePick').value = date;
+      loadForDate(date);
+    };
+    list.appendChild(row);
+  });
+}
+
+/* ---------------- Actions ---------------- */
+document.getElementById('datePick').addEventListener('change', (e) => {
+  loadForDate(e.target.value);
+});
+
+document.getElementById('allPresentBtn').addEventListener('click', () => {
+  const roster = getRoster(SUBJECTS[activeSubjectIdx]);
+  roster.forEach(s => currentRecords[s.reg] = 'P');
+  renderRoster();
+});
+
+document.getElementById('clearBtn').addEventListener('click', () => {
+  const roster = getRoster(SUBJECTS[activeSubjectIdx]);
+  roster.forEach(s => currentRecords[s.reg] = 'A');
+  renderRoster();
+});
+
+document.getElementById('saveBtn').addEventListener('click', () => {
+  const subj = SUBJECTS[activeSubjectIdx];
+  const date = document.getElementById('datePick').value || todayISO();
+  const payload = { savedAt: new Date().toISOString(), records: {...currentRecords} };
+  localStorage.setItem(storageKey(subj.code, date), JSON.stringify(payload));
+
+  const dates = loadDatesList(subj.code);
+  if(!dates.includes(date)){ dates.push(date); saveDatesList(subj.code, dates); }
+
+  renderHistory();
+  const btn = document.getElementById('saveBtn');
+  const original = btn.textContent;
+  btn.textContent = 'Saved ✓';
+  setTimeout(() => { btn.textContent = original; }, 1400);
+});
+
+/* ---------------- Clock ---------------- */
+function tickClock(){
+  const el = document.getElementById('liveClock');
+  el.textContent = new Date().toLocaleString(undefined, {
+    weekday:'short', year:'numeric', month:'short', day:'numeric',
+    hour:'2-digit', minute:'2-digit', second:'2-digit'
+  });
+}
+setInterval(tickClock, 1000);
+tickClock();
+
+/* ---------------- Init ---------------- */
+document.getElementById('datePick').value = todayISO();
+onSubjectChange();
+</script>
+</body>
+</html>
