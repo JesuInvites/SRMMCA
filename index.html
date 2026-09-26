@@ -95,6 +95,11 @@
     font-family:'IBM Plex Mono',monospace; font-size:12.5px; padding:6px 8px;
     border:1px solid var(--rule); border-radius:3px; background:var(--card); color:var(--ink);
   }
+  select#periodPick{
+    font-family:'IBM Plex Mono',monospace; font-size:12.5px; padding:6px 8px;
+    border:1px solid var(--rule); border-radius:3px; background:var(--card); color:var(--ink);
+    cursor:pointer;
+  }
   .btn{
     font-family:'IBM Plex Sans',sans-serif; font-weight:600; font-size:12px;
     padding:7px 12px; border-radius:3px; border:1px solid var(--ink); background:var(--ink); color:var(--paper);
@@ -242,6 +247,8 @@
     <div class="controls">
       <label for="datePick">Date</label>
       <input type="date" id="datePick">
+      <label for="periodPick">Session</label>
+      <select id="periodPick"></select>
       <button class="btn secondary" id="allPresentBtn">Mark all present</button>
       <button class="btn secondary" id="clearBtn">Clear</button>
       <button class="btn stamp" id="saveBtn">Save attendance</button>
@@ -256,6 +263,7 @@
     ⚠ This browser isn't saving attendance properly (private/incognito mode, or the file was opened inside an app like WhatsApp's built-in viewer). Open this file in Chrome/Safari directly, or Save/Download it first, then reopen — otherwise nothing you save here will still be there next time.
   </div>
   <div class="summary-bar" id="summaryBar"></div>
+  <div class="summary-bar" id="savedTimeBar"></div>
 
   <div class="roster" id="rosterBox"></div>
 
@@ -350,17 +358,29 @@ const STUDENTS = [
 ];
 
 const SUBJECTS = [
-  {code:"PCA25C01J", name:"Object Oriented Programming using Java", roster:"core"},
-  {code:"PCA25C02T", name:"Data Structures and Algorithms",          roster:"core"},
-  {code:"PCA25C03J", name:"Database Technology",                     roster:"core"},
-  {code:"PCA25D01J", name:"Software Engineering and Testing",        roster:"D01J"},
-  {code:"PCA25D02J", name:"Advanced Web Technology",                 roster:"D02J"},
-  {code:"PCA25G01T", name:"Cyber Security",                          roster:"G01T"},
-  {code:"PCA25G02T", name:"Soft Computing",                           roster:"G02T"},
-  {code:"PCA25G03T", name:"Distributed Computing",                   roster:"G03T"},
-  {code:"PCA25S01J", name:"Data Mining Techniques",                  roster:"core"},
-  {code:"PCD25AE1T", name:"Comprehensive Skills in Quantitative and Logical Reasoning", roster:"core"},
+  {code:"PCA25C01J", name:"Object Oriented Programming using Java", roster:"core",
+    sessions:[{val:"JAVA_THEORY", label:"Java Theory"}, {val:"JAVA_LAB", label:"Java Lab"}]},
+  {code:"PCA25C02T", name:"Data Structures and Algorithms",          roster:"core",
+    sessions:[{val:"DSA_CLASS", label:"Class"}]},
+  {code:"PCA25C03J", name:"Database Technology",                     roster:"core",
+    sessions:[{val:"DBMS_THEORY", label:"DBMS Theory"}, {val:"DBMS_LAB", label:"DBMS Lab"}]},
+  {code:"PCA25D01J", name:"Software Engineering and Testing",        roster:"D01J",
+    sessions:[{val:"SET_THEORY", label:"SET Theory"}, {val:"SET_LAB", label:"SET Lab"}]},
+  {code:"PCA25D02J", name:"Advanced Web Technology",                 roster:"D02J",
+    sessions:[{val:"AWT_THEORY", label:"AWT Theory"}, {val:"AWT_LAB", label:"AWT Lab"}]},
+  {code:"PCA25G01T", name:"Cyber Security",                          roster:"G01T",
+    sessions:[{val:"CS_CLASS", label:"Class"}]},
+  {code:"PCA25G02T", name:"Soft Computing",                           roster:"G02T",
+    sessions:[{val:"SC_CLASS", label:"Class"}]},
+  {code:"PCA25G03T", name:"Distributed Computing",                   roster:"G03T",
+    sessions:[{val:"DC_CLASS", label:"Class"}]},
+  {code:"PCA25S01J", name:"Data Mining Techniques",                  roster:"core",
+    sessions:[{val:"DMT_THEORY", label:"DMT Theory"}, {val:"DMT_LAB", label:"DMT Lab"}]},
+  {code:"PCD25AE1T", name:"Comprehensive Skills in Quantitative and Logical Reasoning", roster:"core",
+    sessions:[{val:"QLR_CLASS", label:"Class"}]},
 ];
+
+function getSessions(subj){ return subj.sessions; }
 
 function getRoster(subj){
   if(subj.roster === "core") return STUDENTS;
@@ -398,8 +418,9 @@ if(!storageWorks()){
   document.getElementById('storageWarning').classList.add('show');
 }
 
-function storageKey(code, date){ return `attn_${code}_${date}`; }
+function storageKey(code, date, period){ return `attn_${code}_${date}_P${period}`; }
 function datesKey(code){ return `attn_dates_${code}`; }
+function currentPeriod(){ return document.getElementById('periodPick').value; }
 
 function loadDatesList(code){
   try{
@@ -411,9 +432,9 @@ function saveDatesList(code, arr){
   localStorage.setItem(datesKey(code), JSON.stringify(arr));
 }
 
-function loadRecord(code, date){
+function loadRecord(code, date, period){
   try{
-    const raw = localStorage.getItem(storageKey(code, date));
+    const raw = localStorage.getItem(storageKey(code, date, period));
     return raw ? JSON.parse(raw) : null;
   }catch(e){ return null; }
 }
@@ -456,19 +477,47 @@ function onSubjectChange(){
     ? `Core course · all ${roster.length} students of Section D`
     : `Elective (${subj.code}) · ${roster.length} students enrolled`;
   document.getElementById('rosterNote').textContent = note;
+  populateSessionPicker(subj);
   loadForDate(document.getElementById('datePick').value || todayISO());
   renderHistory();
 }
 
+function populateSessionPicker(subj){
+  const sel = document.getElementById('periodPick');
+  const prevVal = sel.value;
+  sel.innerHTML = '';
+  subj.sessions.forEach(s => {
+    const opt = document.createElement('option');
+    opt.value = s.val;
+    opt.textContent = s.label;
+    sel.appendChild(opt);
+  });
+  // keep the same session selected if the new subject happens to share that value (rare), else default to first
+  const stillValid = subj.sessions.some(s => s.val === prevVal);
+  sel.value = stillValid ? prevVal : subj.sessions[0].val;
+}
+
 function loadForDate(date){
   const subj = SUBJECTS[activeSubjectIdx];
+  const period = currentPeriod();
   const roster = getRoster(subj);
-  const existing = loadRecord(subj.code, date);
+  const existing = loadRecord(subj.code, date, period);
   currentRecords = {};
   roster.forEach(s => {
     currentRecords[s.reg] = existing && existing.records[s.reg] ? existing.records[s.reg] : "A";
   });
   renderRoster();
+  updateSavedTimeChip(existing);
+}
+
+function updateSavedTimeChip(existing){
+  const bar = document.getElementById('savedTimeBar');
+  if(existing && existing.savedAt){
+    const t = new Date(existing.savedAt).toLocaleString();
+    bar.innerHTML = `<span class="chip present">Saved at ${t}</span>`;
+  } else {
+    bar.innerHTML = `<span class="chip">Not saved yet for this period</span>`;
+  }
 }
 
 function renderRoster(){
@@ -535,23 +584,41 @@ function updateSummary(roster){
   `;
 }
 
+function sessionLabel(subj, val){
+  const s = subj.sessions.find(x => x.val === val);
+  return s ? s.label : val;
+}
+
 function shareOnWhatsApp(){
   const subj = SUBJECTS[activeSubjectIdx];
   const roster = getRoster(subj);
   const date = document.getElementById('datePick').value || todayISO();
+  const period = currentPeriod();
+
+  const rec = loadRecord(subj.code, date, period);
+  if(!rec){
+    showToast('Save attendance for this subject/date/period first, then share.');
+    return;
+  }
+  if(JSON.stringify(rec.records) !== JSON.stringify(currentRecords)){
+    showToast('You have unsaved changes — save first so WhatsApp gets the latest status.');
+    return;
+  }
 
   const [y, m, d] = date.split('-');
   const dateDisplay = `${d}/${m}/${y}`;
-  const timeDisplay = new Date().toLocaleTimeString(undefined, { hour:'2-digit', minute:'2-digit' });
+  // Use the exact time this subject's attendance was saved — not the time of sharing.
+  const savedDate = new Date(rec.savedAt);
+  const timeDisplay = savedDate.toLocaleTimeString(undefined, { hour:'2-digit', minute:'2-digit' });
 
   const serialByReg = {};
   STUDENTS.forEach((student, index) => { serialByReg[student.reg] = index + 1; });
 
   const bySerial = (a,b) => serialByReg[a.reg]-serialByReg[b.reg];
-  const present = roster.filter(s => currentRecords[s.reg] === 'P').slice().sort(bySerial);
-  const absent = roster.filter(s => currentRecords[s.reg] !== 'P').slice().sort(bySerial);
+  const present = roster.filter(s => rec.records[s.reg] === 'P').slice().sort(bySerial);
+  const absent = roster.filter(s => rec.records[s.reg] !== 'P').slice().sort(bySerial);
 
-  let text = `*${subj.name}* (${subj.code})\n`;
+  let text = `*${subj.name}* (${subj.code}) — ${sessionLabel(subj, period)}\n`;
   text += `Date: ${dateDisplay}  Time: ${timeDisplay}\n\n`;
   text += `Present: ${present.length} / ${roster.length}\n\n`;
 
@@ -573,32 +640,36 @@ document.getElementById('shareBtn').addEventListener('click', shareOnWhatsApp);
 function renderHistory(){
   const subj = SUBJECTS[activeSubjectIdx];
   const currentDate = document.getElementById('datePick').value || todayISO();
-  const dates = loadDatesList(subj.code).slice().sort().reverse();
+  const currentPer = currentPeriod();
+  const entries = loadDatesList(subj.code).slice().sort().reverse();
   const list = document.getElementById('historyList');
   list.innerHTML = '';
-  if(dates.length === 0){
+  if(entries.length === 0){
     list.innerHTML = `<div class="history-empty">No attendance saved yet for this subject.</div>`;
     return;
   }
-  dates.forEach(date => {
-    const rec = loadRecord(subj.code, date);
+  entries.forEach(entry => {
+    const [date, period] = entry.split('#');
+    const rec = loadRecord(subj.code, date, period);
     if(!rec) return;
     const values = Object.values(rec.records);
     const present = values.filter(v => v === 'P').length;
     const absent = values.length - present;
+    const isCurrent = (date === currentDate && period === currentPer);
     const row = document.createElement('div');
-    row.className = 'history-row' + (date === currentDate ? ' is-active' : '');
+    row.className = 'history-row' + (isCurrent ? ' is-active' : '');
     const savedTime = rec.savedAt ? new Date(rec.savedAt).toLocaleString() : '';
     row.innerHTML = `
-      <div><span class="d">${date}</span><br><span class="ts">saved ${savedTime}</span></div>
+      <div><span class="d">${date} · ${sessionLabel(subj, period)}</span><br><span class="ts">saved ${savedTime}</span></div>
       <div class="counts"><span>P:${present}</span><span>A:${absent}</span></div>
-      <button type="button" class="load">${date === currentDate ? 'Viewing' : 'Open'}</button>
+      <button type="button" class="load">${isCurrent ? 'Viewing' : 'Open'}</button>
     `;
     row.querySelector('.load').onclick = () => {
       document.getElementById('datePick').value = date;
+      document.getElementById('periodPick').value = period;
       loadForDate(date);
       renderHistory();
-      showToast(`Loaded ${subj.code} attendance for ${date} — ${present} present, ${absent} absent`);
+      showToast(`Loaded ${subj.code} · ${sessionLabel(subj, period)} for ${date} — ${present} present, ${absent} absent`);
       document.getElementById('rosterBox').scrollIntoView({ behavior:'smooth', block:'start' });
     };
     list.appendChild(row);
@@ -613,6 +684,12 @@ document.getElementById('datePick').addEventListener('change', (e) => {
     showToast('Future dates are not allowed — reset to today.');
   }
   loadForDate(e.target.value);
+  renderHistory();
+});
+
+document.getElementById('periodPick').addEventListener('change', () => {
+  loadForDate(document.getElementById('datePick').value || todayISO());
+  renderHistory();
 });
 
 document.getElementById('allPresentBtn').addEventListener('click', () => {
@@ -630,14 +707,17 @@ document.getElementById('clearBtn').addEventListener('click', () => {
 document.getElementById('saveBtn').addEventListener('click', () => {
   const subj = SUBJECTS[activeSubjectIdx];
   const date = document.getElementById('datePick').value || todayISO();
+  const period = currentPeriod();
   const payload = { savedAt: new Date().toISOString(), records: {...currentRecords} };
-  localStorage.setItem(storageKey(subj.code, date), JSON.stringify(payload));
+  localStorage.setItem(storageKey(subj.code, date, period), JSON.stringify(payload));
 
-  const dates = loadDatesList(subj.code);
-  if(!dates.includes(date)){ dates.push(date); saveDatesList(subj.code, dates); }
+  const entries = loadDatesList(subj.code);
+  const entryId = `${date}#${period}`;
+  if(!entries.includes(entryId)){ entries.push(entryId); saveDatesList(subj.code, entries); }
 
   renderHistory();
-  showToast(`Saved ${subj.code} attendance for ${date}`);
+  updateSavedTimeChip(payload);
+  showToast(`Saved ${subj.code} · ${sessionLabel(subj, period)} attendance for ${date}`);
   const btn = document.getElementById('saveBtn');
   const original = btn.textContent;
   btn.textContent = 'Saved ✓';
