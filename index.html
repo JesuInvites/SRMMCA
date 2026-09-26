@@ -45,13 +45,13 @@
   a{color:inherit;}
 
   header.masthead{
-    padding:28px 24px 18px; text-align:center;
+    padding:16px 24px 12px; text-align:center;
     border-bottom:2px solid var(--ink);
     background:var(--paper);
   }
   header.masthead h1{
     font-family:'Lora', serif; font-weight:700; font-style:italic;
-    font-size:clamp(26px,4vw,38px); margin:0 0 4px; letter-spacing:0.2px;
+    font-size:clamp(20px,3vw,28px); margin:0 0 3px; letter-spacing:0.2px;
   }
   header.masthead .meta{
     font-size:13px; color:var(--ink-soft); font-family:'IBM Plex Mono', monospace;
@@ -64,9 +64,9 @@
     scrollbar-width:thin;
   }
   nav.tabs button{
-    flex:0 0 auto; font-family:'IBM Plex Sans',sans-serif; font-weight:600; font-size:13.5px;
+    flex:0 0 auto; font-family:'IBM Plex Sans',sans-serif; font-weight:600; font-size:12.5px;
     background:transparent; color:var(--ink-soft); border:none; border-top:3px solid transparent;
-    padding:14px 16px 11px; cursor:pointer; white-space:nowrap; letter-spacing:0.1px;
+    padding:10px 13px 8px; cursor:pointer; white-space:nowrap; letter-spacing:0.1px;
     transition: color .15s, border-color .15s, background .15s;
   }
   nav.tabs button .code{ font-family:'IBM Plex Mono',monospace; font-size:10.5px; display:block; color:var(--ink-soft); opacity:.7; margin-bottom:2px;}
@@ -76,28 +76,28 @@
   }
   nav.tabs button.active .code{ color:var(--stamp); opacity:.85;}
 
-  main{ max-width:920px; margin:0 auto; padding:22px 18px 60px; }
+  main{ max-width:920px; margin:0 auto; padding:14px 18px 40px; }
 
   .panel-head{
     display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between;
-    gap:14px; margin-bottom:16px;
+    gap:10px; margin-bottom:10px;
   }
   .panel-head h2{
-    font-family:'Lora',serif; font-size:22px; margin:0; font-weight:600;
+    font-family:'Lora',serif; font-size:18px; margin:0; font-weight:600;
   }
-  .panel-head .roster-note{ font-size:12.5px; color:var(--ink-soft); margin-top:3px; }
+  .panel-head .roster-note{ font-size:11.5px; color:var(--ink-soft); margin-top:2px; }
 
   .controls{
-    display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+    display:flex; align-items:center; gap:7px; flex-wrap:wrap;
   }
-  .controls label{ font-size:12.5px; color:var(--ink-soft); font-weight:600; }
+  .controls label{ font-size:12px; color:var(--ink-soft); font-weight:600; }
   input[type="date"]{
-    font-family:'IBM Plex Mono',monospace; font-size:13px; padding:7px 10px;
+    font-family:'IBM Plex Mono',monospace; font-size:12.5px; padding:6px 8px;
     border:1px solid var(--rule); border-radius:3px; background:var(--card); color:var(--ink);
   }
   .btn{
-    font-family:'IBM Plex Sans',sans-serif; font-weight:600; font-size:13px;
-    padding:9px 16px; border-radius:3px; border:1px solid var(--ink); background:var(--ink); color:var(--paper);
+    font-family:'IBM Plex Sans',sans-serif; font-weight:600; font-size:12px;
+    padding:7px 12px; border-radius:3px; border:1px solid var(--ink); background:var(--ink); color:var(--paper);
     cursor:pointer; transition: transform .08s ease, opacity .15s;
   }
   .btn:hover{ opacity:.88; }
@@ -110,10 +110,10 @@
   .btn:disabled{ opacity:.4; cursor:not-allowed; }
 
   .summary-bar{
-    display:flex; gap:10px; margin-bottom:14px; flex-wrap:wrap;
+    display:flex; gap:8px; margin-bottom:10px; flex-wrap:wrap;
   }
   .summary-bar .chip{
-    font-family:'IBM Plex Mono',monospace; font-size:12px; padding:6px 12px;
+    font-family:'IBM Plex Mono',monospace; font-size:11px; padding:5px 10px;
     border-radius:20px; background:var(--paper-dark); color:var(--ink-soft); border:1px solid var(--rule);
   }
   .summary-bar .chip.present{ background:var(--sage-soft); color:var(--sage); border-color:transparent; font-weight:600;}
@@ -124,27 +124,27 @@
     overflow:hidden; box-shadow:var(--shadow);
   }
   .roster .row{
-    display:grid; grid-template-columns:36px 1fr 150px 110px;
-    align-items:center; padding:11px 16px; border-bottom:1px solid var(--rule);
-    gap:10px;
+    display:grid; grid-template-columns:32px 1fr 140px 100px;
+    align-items:center; padding:7px 14px; border-bottom:1px solid var(--rule);
+    gap:8px;
   }
   .roster .row:last-child{ border-bottom:none; }
   .roster .row.head{
-    background:var(--paper-dark); font-size:11px; text-transform:uppercase; letter-spacing:0.6px;
-    color:var(--ink-soft); font-weight:700; padding-top:9px; padding-bottom:9px;
+    background:var(--paper-dark); font-size:10px; text-transform:uppercase; letter-spacing:0.6px;
+    color:var(--ink-soft); font-weight:700; padding-top:6px; padding-bottom:6px;
   }
-  .roster .row .sl{ font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--ink-soft); }
-  .roster .row .name{ font-weight:600; font-size:14.5px; }
-  .roster .row .reg{ font-family:'IBM Plex Mono',monospace; font-size:11.5px; color:var(--ink-soft); }
+  .roster .row .sl{ font-family:'IBM Plex Mono',monospace; font-size:11.5px; color:var(--ink-soft); }
+  .roster .row .name{ font-weight:600; font-size:13px; }
+  .roster .row .reg{ font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--ink-soft); }
   .sports-badge{ display:inline-block; margin-left:7px; padding:2px 6px; border-radius:10px; background:var(--gold); color:#fff; font-family:'IBM Plex Mono',monospace; font-size:9px; font-weight:700; vertical-align:middle; }
   .roster .row.absent-row{ background: color-mix(in srgb, var(--stamp-soft) 45%, transparent); }
 
   .toggle{
     display:flex; border:1px solid var(--rule); border-radius:20px; overflow:hidden;
-    font-family:'IBM Plex Mono',monospace; font-size:11.5px; font-weight:600; width:fit-content;
+    font-family:'IBM Plex Mono',monospace; font-size:11px; font-weight:600; width:fit-content;
   }
   .toggle button{
-    border:none; background:transparent; padding:6px 14px; cursor:pointer; color:var(--ink-soft);
+    border:none; background:transparent; padding:5px 12px; cursor:pointer; color:var(--ink-soft);
   }
   .toggle button.present.on{ background:var(--sage); color:#fff; }
   .toggle button.absent.on{ background:var(--stamp); color:#fff; }
@@ -194,16 +194,16 @@
   }
 
   .history{
-    margin-top:34px; padding-top:22px; border-top:1px dashed var(--rule);
+    margin-top:22px; padding-top:16px; border-top:1px dashed var(--rule);
   }
   .history h3{
-    font-family:'Lora',serif; font-size:17px; margin:0 0 12px; font-weight:600;
+    font-family:'Lora',serif; font-size:15px; margin:0 0 9px; font-weight:600;
   }
-  .history-list{ display:flex; flex-direction:column; gap:6px; }
+  .history-list{ display:flex; flex-direction:column; gap:5px; }
   .history-row{
     display:flex; align-items:center; justify-content:space-between; gap:10px;
     background:var(--card); border:1px solid var(--rule); border-radius:5px;
-    padding:9px 14px; font-size:12.5px;
+    padding:7px 12px; font-size:12px;
   }
   .history-row .d{ font-family:'IBM Plex Mono',monospace; font-weight:600; }
   .history-row .ts{ color:var(--ink-soft); font-size:11.5px; }
@@ -540,23 +540,30 @@ function shareOnWhatsApp(){
   const roster = getRoster(subj);
   const date = document.getElementById('datePick').value || todayISO();
 
+  const [y, m, d] = date.split('-');
+  const dateDisplay = `${d}/${m}/${y}`;
+  const timeDisplay = new Date().toLocaleTimeString(undefined, { hour:'2-digit', minute:'2-digit' });
+
   const serialByReg = {};
   STUDENTS.forEach((student, index) => { serialByReg[student.reg] = index + 1; });
 
-  const present = roster.filter(s => currentRecords[s.reg] === 'P');
-  const absent = roster.filter(s => currentRecords[s.reg] !== 'P');
+  const bySerial = (a,b) => serialByReg[a.reg]-serialByReg[b.reg];
+  const present = roster.filter(s => currentRecords[s.reg] === 'P').slice().sort(bySerial);
+  const absent = roster.filter(s => currentRecords[s.reg] !== 'P').slice().sort(bySerial);
 
-  let text = `*${subj.name}* (${subj.code})\nAttendance — ${date}\n\n`;
+  let text = `*${subj.name}* (${subj.code})\n`;
+  text += `Date: ${dateDisplay}  Time: ${timeDisplay}\n\n`;
   text += `Present: ${present.length} / ${roster.length}\n\n`;
-  if(absent.length){
-    text += `*Absentees:*\n`;
-    absent
-      .slice()
-      .sort((a,b) => serialByReg[a.reg]-serialByReg[b.reg])
-      .forEach(s => { text += `${serialByReg[s.reg]}. ${s.name} (${s.reg})\n`; });
-  } else {
-    text += `All students present.`;
-  }
+
+  text += `*Present (${present.length}):*\n`;
+  text += present.length
+    ? present.map(s => `${serialByReg[s.reg]}. ${s.name} (${s.reg})`).join('\n')
+    : `None`;
+
+  text += `\n\n*Absentees (${absent.length}):*\n`;
+  text += absent.length
+    ? absent.map(s => `${serialByReg[s.reg]}. ${s.name} (${s.reg})`).join('\n')
+    : `None`;
 
   const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
   window.open(url, '_blank');
@@ -600,6 +607,11 @@ function renderHistory(){
 
 /* ---------------- Actions ---------------- */
 document.getElementById('datePick').addEventListener('change', (e) => {
+  const today = todayISO();
+  if(e.target.value > today){
+    e.target.value = today;
+    showToast('Future dates are not allowed — reset to today.');
+  }
   loadForDate(e.target.value);
 });
 
@@ -645,6 +657,7 @@ tickClock();
 
 /* ---------------- Init ---------------- */
 document.getElementById('datePick').value = todayISO();
+document.getElementById('datePick').max = todayISO();
 onSubjectChange();
 </script>
 </body>
